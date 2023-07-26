@@ -2,7 +2,7 @@ import pygame
 import os
 import random
 pygame.init()
-window_size = (1000, 550)
+window_size = (1100, 500)
 screen = pygame.display.set_mode(window_size)
 clock = pygame.time.Clock()
 BLACK, WHITE, GREY = (0, 0, 0), (255, 255, 255), (108, 108, 108)
@@ -129,14 +129,15 @@ class Bird(Obstacle):
             self.animation_list.append(img)
         self.image = self.animation_list[0]
         self.rect = self.image.get_rect()
-        self.rect.y = random.randint(40, y_gr_pos - 50)
+        self.rect.y = random.randint(175, y_gr_pos - 40)
         Obstacle.__init__(self, self.image, self.rect)
 
     def update_animation(self):
-        if self.flap_count >= 10:
+        if self.flap_count >= 30:
             self.flap_count = 0
-        self.image = self.animation_list[self.flap_count // 10]
+        self.image = self.animation_list[self.flap_count // 15]
         self.flap_count += 1
+        self.update()
 
 
 class Cactus(Obstacle):
@@ -147,9 +148,12 @@ class Cactus(Obstacle):
         self.rect.y = y_gr_pos - 80
         Obstacle.__init__(self, self.image, self.rect)
 
+    def update_animation(self):
+        self.update()
 
-bird = Bird()
+
 dino = Dinosaur()
+obstacle_value = 0
 running = True
 while running:
     clock.tick(60)
@@ -157,19 +161,25 @@ while running:
         if event.type == pygame.QUIT:
             running = False
     key_press = pygame.key.get_pressed()
+
     background()
     dino.draw()
     dino.animation_update(key_press)
 
     if len(obstacle) == 0:
-        obstacle.append(Cactus())
-
+        obstacle_value = random.randint(1, 25)
+        if obstacle_value % 2 == 0:
+            obstacle.append(Bird())
+        else: obstacle.append(Cactus())
+    print(obstacle_value)
     for ob in obstacle:
         ob.draw()
-        ob.update()
+        ob.update_animation()
+
         if dino.rect.colliderect(ob.rect):
             pygame.time.delay(2000)
             running = False
+
     pygame.display.update()
 
 pygame.time.delay(1000)
